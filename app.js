@@ -8,6 +8,8 @@ const knex = require("knex")(knex_options); // setup databse connection options
 const swaggerUI = require("swagger-ui-express");
 const yaml = require("yamljs");
 const swaggerDocumentation = yaml.load("./docs/swagger.yaml");
+const cors = require("cors");
+const helmet = require("helmet");
 
 var stocksRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
@@ -27,6 +29,8 @@ logger.token("res", (req, res) => {
   return JSON.stringify(headers);
 });
 app.use(logger("common"));
+app.use(helmet()); // allow non domain website to access api
+app.use(cors()); // allow non domain website to access api
 app.use(express.json());
 app.use(
   express.urlencoded({
@@ -45,7 +49,6 @@ app.use((req, res, next) => {
 
 app.use("/stocks", stocksRouter);
 app.use("/users", usersRouter);
-
 app.use("/", swaggerUI.serve, swaggerUI.setup(swaggerDocumentation));
 
 // catch 404 and forward to error handler

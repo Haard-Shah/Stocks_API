@@ -1,13 +1,6 @@
 var express = require("express");
 var router = express.Router();
 
-/* GET home page. */
-router.get("/", function (req, res, next) {
-  res.render("index", {
-    title: "Express",
-  });
-});
-
 /* Stocks Page */
 router.get("/symbols", (req, res, next) => {
   // Check if the req has a industry attached
@@ -74,8 +67,7 @@ router.get("/:symbol", (req, res, next) => {
     console.log("to and from were give for unathorised routes");
     res.status(400).json({
       error: true,
-      message:
-        "Date parameters only available on authenticated route /stocks/authed",
+      message: "Date parameters only available on authenticated route /stocks/authed",
     });
   } else {
     // Simple Unauthed Specific symbol stock query
