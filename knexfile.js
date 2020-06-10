@@ -1,9 +1,16 @@
+const {
+    host,
+    user,
+    password,
+    database
+} = require("./config");
+
 module.exports = {
     client: "mysql",
     connection: {
-        host: "localhost",
-        user: "root",
-        password: "Cab230!",
-        database: "webcomputing",
+        host: host,
+        user: user,
+        password: password,
+        database: database,
     },
 };
