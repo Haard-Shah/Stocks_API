@@ -3,8 +3,7 @@ var router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {
-  secretKey,
-  saltRounds
+  secretKey
 } = require("../config");
 
 /* GET users listing. */

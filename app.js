@@ -11,10 +11,28 @@ const swaggerDocumentation = yaml.load("./docs/swagger.yaml");
 const cors = require("cors");
 const helmet = require("helmet");
 
+const fs = require('fs');
+const https = require('https');
+const privateKey = fs.readFileSync('/etc/ssl/private/node-selfsigned.key', 'utf8');
+const certificate = fs.readFileSync('/etc/ssl/certs/node-selfsigned.crt', 'utf8');
+const credentials = {
+  key: privateKey,
+  cert: certificate
+};
+
 var stocksRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 
 var app = express();
+
+app.use(logger("common"));
+app.use(helmet()); // Force HSTS header to only server on https
+
+// Sets "Strict-Transport-Security: max-age=5184000; includeSubDomains".
+const sixtyDaysInSeconds = 5184000
+app.use(helmet.hsts({
+  maxAge: sixtyDaysInSeconds
+}))
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -28,13 +46,11 @@ logger.token("res", (req, res) => {
 
   return JSON.stringify(headers);
 });
-app.use(logger("common"));
-app.use(helmet()); // allow non domain website to access api
 app.use(cors()); // allow non domain website to access api
 app.use(express.json());
 app.use(
   express.urlencoded({
-    extended: false, //TODO: Ask if this needs to be true?
+    extended: false,
   })
 );
 app.use(cookieParser());
@@ -66,5 +82,8 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+
+const server = https.createServer(credentials, app);
+server.listen(443);
 
 module.exports = app;

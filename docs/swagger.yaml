@@ -1,7 +1,9 @@
 openapi: 3.0.0
 info:
   title: Stocks API
-  description: This API has been created to support assignment work in the QUT Web Computing units for 2020. It exposes a small number of REST endpoints which implement CRUD operations on a database containing a snapshot of publicly available stock price data. The database includes entries - over a limited time frame - for a selected number of companies listed on our example Stock Exchange. There are three Query endpoints - `GET`s to allow you to retrieve data from the database - and two `POST` endpoints to manager User registration and login. Each of these endpoints is fairly straight forward and their usage is documented below. Note that the `/stocks` and `/stocks/authed` endpoints are similar in principle, but the latter endpoint offers additional functionality - the ability to select data based on a date range - that is available only to authenticated users. **_Note:_** All non-path query parameters are _optional_ and _must_ be lower case. 
+  description: "This API has been created to support assignment work in the QUT Web Computing units for 2020. It exposes a small number of REST endpoints which implement CRUD operations on a database containing a snapshot of publicly available stock price data. The database includes entries - over a limited time frame - for a selected number of companies listed on our example Stock Exchange. There are three Query endpoints - `GET`s to allow you to retrieve data from the database - and two `POST` endpoints to manager User registration and login. Each of these endpoints is fairly straight forward and their usage is documented below. Note that the `/stocks` and `/stocks/authed` endpoints are similar in principle, but the latter endpoint offers additional functionality - the ability to select data based on a date range - that is available only to authenticated users. **_Note:_** All non-path query parameters are _optional_ and _must_ be lower case. 
+  
+  Developed by, Haard Shah"
 
   version: 1.0.0
 
@@ -13,7 +15,7 @@ components:
       bearerFormat: JWT
 
 servers:
-  - url: http://127.0.0.1:3000
+  - url: https://172.22.31.147
 paths:
   /stocks/symbols:
     get:
