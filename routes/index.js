@@ -50,6 +50,7 @@ const Authorised = (req, res, next) => {
       error: true,
       message: "You are not authorised to perform this action",
     });
+    return;
   }
 };
 
@@ -87,12 +88,14 @@ router.get("/symbols", (req, res, next) => {
           }
 
           res.json(rows);
+          return;
         })
         .catch((err) => {
           res.status(500).json({
             Error: true,
             Message: "Server Error - Error executing MySQL query",
           });
+          return;
         });
     }
   } else {
@@ -102,12 +105,14 @@ router.get("/symbols", (req, res, next) => {
       .then((rows) => {
         console.log(rows.length); // TODO: remove in production
         res.json(rows);
+        return;
       })
       .catch((err) => {
         res.status(500).json({
           Error: true,
           Message: "Server Error - Error executing MySQL query",
         });
+        return;
       });
   }
 });
@@ -122,11 +127,12 @@ router.get("/:symbol", (req, res, next) => {
   console.log(to, from);
   // Check if 'from' and 'to' were specified
   if (from || to) {
-    console.log("to and from were give for unathorised routes");
+    console.log("to and from were give for unathorised routes"); //TODO: remove in production
     res.status(400).json({
       error: true,
       message: "Date parameters only available on authenticated route /stocks/authed",
     });
+    return;
   } else {
     // Simple Unauthed Specific symbol stock query
     req.db
@@ -138,10 +144,12 @@ router.get("/:symbol", (req, res, next) => {
           // unrecorded Symbol
           res.status(404).json({
             error: true,
-            message: "No entry for symbol in stocks database",
+            message: "No entry for symbol in stocks database - Symbol shold be 1 - 5 Characters long (all in uppercase)",
           });
+          return;
         } else {
           res.status(200).json(rows[0]);
+          return;
         }
       })
       .catch((err) => {
@@ -149,12 +157,14 @@ router.get("/:symbol", (req, res, next) => {
           Error: true,
           Message: "Server Error - Error executing MySQL query",
         });
+        return;
       });
   }
 });
 
 /* Authenticated Specific Symbols Page */
 router.get("/authed/:symbol", Authorised, (req, res, next) => {
+  // Reterive the to and from dates
   const {
     from,
     to
@@ -171,18 +181,7 @@ router.get("/authed/:symbol", Authorised, (req, res, next) => {
       return;
     }
 
-    // TODO: Add date contrainting code
-    // if (from) {
-    //   const minDate = req.db('stocks').min("timestamp").where("symbol", "=", req.params.symbol);
-    //   from = (from < minDate ? minDate : from); //TODO: add check so that its still below max date
-    // }
-
-    // if (to) {
-    //   const maxDate = req.db('stocks').max("timestamp").where("symbol", "=", req.params.symbol);
-    //   to = (to > maxDate ? maxDate : to);
-    // }
-
-    // if query is defined, with right parameters, check if the paramerts are valid dates
+    // if query is defined, with right parameters, check if the parameters are in valid dates format
     const fromDate = new Date(from);
     const toDate = new Date(to);
 
@@ -190,7 +189,7 @@ router.get("/authed/:symbol", Authorised, (req, res, next) => {
       // valid dates, reterive the data between dates
       req.db.from("stocks").select("*")
         .where("symbol", "=", req.params.symbol)
-        .whereBetween("timestamp", [from, to]) // FIXME: Need to constraint the date
+        .whereBetween("timestamp", [from, to])
         .then((rows) => {
           console.log(`${rows.length} Rows retertived`);
 
@@ -204,21 +203,22 @@ router.get("/authed/:symbol", Authorised, (req, res, next) => {
           }
 
           // else succesful data reterival
-          res.json(rows);
+          res.status(200).json(rows);
           return;
         })
         .catch((err) => {
           console.log(err);
           res.status(500).json({
             error: true,
-            message: "Server Error - cannot reterive data no match", //TODO: might want to add a error for to and from dates
+            message: "Server Error - cannot reterive data: no match",
           });
+          return;
         });
     } else {
       // Date suplied is not in correct format
       res.status(404).json({
         error: true,
-        message: "No entries available for query symbol for supplied date range",
+        message: "No entries available for query symbol for supplied date range - Check query dates",
       });
       return;
     }
@@ -229,6 +229,7 @@ router.get("/authed/:symbol", Authorised, (req, res, next) => {
       .select("*")
       .where("symbol", "=", req.params.symbol)
       .then((rows) => {
+        // if no data reterived, symbol is not recorded
         if (rows.length === 0) {
           res.status(404).json({
             error: true,
@@ -251,16 +252,3 @@ router.get("/authed/:symbol", Authorised, (req, res, next) => {
 });
 
 module.exports = router;
-
-// TODO: ASK
-/*
- * - if the date is beyond the start and end date of the database do we limit the dates to actual dates or do we return a error?
- * - can user only supply a start date and not an end date? and vice vera?
- * - Is it okay to have a long index.js file? are we expected to break our route handeling into smaller functions
- * - How to response with an array of objects? currently res.json returns an object of array with array being array of objects.
- * - Is there a smater way of formulating the queries especially for the where clause?
- * - Should we sort data before sending back to the user?
- * - Is response code 500 okay for database errors?
- * - Can edit the swagger docs to have more response codes? like 500 for server errors
- * - Any tips for date querying? how to match the dates in the database?
- */

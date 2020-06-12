@@ -41,7 +41,7 @@ router.post("/register", (req, res, next) => {
           return;
         } else {
           // if user does not exist, create user
-          const saltRounds = 10; // TODO: ASK why we need to define the salt here? 
+          const saltRounds = 10; // TODO: ASK why we need to define the salt here? why can't it be reterived from .env file?
           const hash = bcrypt.hashSync(password, saltRounds);
           return req.db.from("users").insert({
             email,
