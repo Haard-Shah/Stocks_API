@@ -34,7 +34,7 @@ app.use(cors()); // allow non domain website to access api
 app.use(express.json());
 app.use(
   express.urlencoded({
-    extended: false,
+    extended: false, //TODO: Ask if this needs to be true?
   })
 );
 app.use(cookieParser());
@@ -48,7 +48,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/stocks", stocksRouter);
-app.use("/users", usersRouter);
+app.use("/user", usersRouter);
 app.use("/", swaggerUI.serve, swaggerUI.setup(swaggerDocumentation));
 
 // catch 404 and forward to error handler

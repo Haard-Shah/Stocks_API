@@ -63,8 +63,8 @@ router.post("/register", (req, res, next) => {
       .catch((err) => {
         console.log(err);
         res.status(500).json({
-          Error: true,
-          Message: "Server Error - Could not create user",
+          error: true,
+          message: "Server Error - Could not create user",
         });
       });
   }
