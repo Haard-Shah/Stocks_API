@@ -1,7 +1,9 @@
 var express = require("express");
 var router = express.Router();
 const jwt = require("jsonwebtoken");
-const { secretKey } = require("../config");
+const {
+  secretKey
+} = require("../config");
 
 /**
  * validates the authorisation header and thus, the JWT token as well.
@@ -54,7 +56,9 @@ const Authorised = (req, res, next) => {
 /* Stocks Page */
 router.get("/symbols", (req, res, next) => {
   // Check if the req has a industry attached
-  const { industry } = req.query;
+  const {
+    industry
+  } = req.query;
 
   // Check if a query was defined
   if (JSON.stringify(req.query) !== "{}") {
@@ -110,7 +114,10 @@ router.get("/symbols", (req, res, next) => {
 
 /* Unathenticated Specific Symbol Stock page */
 router.get("/:symbol", (req, res, next) => {
-  const { from, to } = req.query;
+  const {
+    from,
+    to
+  } = req.query;
 
   console.log(to, from);
   // Check if 'from' and 'to' were specified
@@ -118,8 +125,7 @@ router.get("/:symbol", (req, res, next) => {
     console.log("to and from were give for unathorised routes");
     res.status(400).json({
       error: true,
-      message:
-        "Date parameters only available on authenticated route /stocks/authed",
+      message: "Date parameters only available on authenticated route /stocks/authed",
     });
   } else {
     // Simple Unauthed Specific symbol stock query
@@ -149,7 +155,10 @@ router.get("/:symbol", (req, res, next) => {
 
 /* Authenticated Specific Symbols Page */
 router.get("/authed/:symbol", Authorised, (req, res, next) => {
-  const { from, to } = req.query;
+  const {
+    from,
+    to
+  } = req.query;
 
   // Check if a query was defined
   if (JSON.stringify(req.query) !== "{}") {
@@ -157,17 +166,10 @@ router.get("/authed/:symbol", Authorised, (req, res, next) => {
     if (!from || !to) {
       res.status(400).json({
         error: true,
-        message:
-          "Parameters allowed are 'from' and 'to', example: /stocks/authed/AAL?from=2020-03-15",
+        message: "Parameters allowed are 'from' and 'to', example: /stocks/authed/AAL?from=2020-03-15",
       });
       return;
     }
-    // if query is difined correctly, check if its valid
-    // FIXME: need to send a 404 error if dates are out of bond
-    console.log("from and to defeind"); // TODO: Remove in production
-    console.log("From: ", from); // TODO: Remove in production
-    // FIXME: check if the From and To are more than one values
-    console.log("To:", to); // TODO: Remove in production
 
     // TODO: Add date contrainting code
     // if (from) {
@@ -181,29 +183,12 @@ router.get("/authed/:symbol", Authorised, (req, res, next) => {
     // }
 
     // if query is defined, with right parameters, check if the paramerts are valid dates
-    const fromDate = new Date(from); //TODO: remove all this
+    const fromDate = new Date(from);
     const toDate = new Date(to);
-    // console.log(from instanceof Date);
-    // console.log(typeof (from));
-    // console.log(fromDate.getDate());
-    // console.log(fromDate.getDate() !== NaN);
 
-    // console.log(to instanceof Date);
-    // console.log(typeof (to));
-    // console.log(toDate);
-
-    console.log("From date in date form: ", fromDate.getDate());
-    console.log("\n", typeof fromDate.getDate());
-    console.log(" \n From is a NaN:", toDate.getDate() === NaN);
-    console.log(" \n To is a NaN:", toDate.getDate() === NaN);
-
-    // if ((fromDate.getDate() !== NaN) && (toDate.getDate() !== NaN)) { //TODO: Do a proper date test
-    if (typeof from === "string" && typeof to === "string") {
-      console.log("db query");
+    if (!isNaN(fromDate.getDate()) && (!isNaN(toDate.getDate()))) {
       // valid dates, reterive the data between dates
-      req.db
-        .from("stocks")
-        .select("*")
+      req.db.from("stocks").select("*")
         .where("symbol", "=", req.params.symbol)
         .whereBetween("timestamp", [from, to]) // FIXME: Need to constraint the date
         .then((rows) => {
@@ -213,8 +198,7 @@ router.get("/authed/:symbol", Authorised, (req, res, next) => {
           if (rows.length === 0) {
             res.status(404).json({
               error: true,
-              message:
-                "No entries available for query symbol for supplied date range",
+              message: "No entries available for query symbol for supplied date range",
             });
             return;
           }
@@ -231,11 +215,10 @@ router.get("/authed/:symbol", Authorised, (req, res, next) => {
           });
         });
     } else {
-      // Date suplied not in correct formate
+      // Date suplied is not in correct format
       res.status(404).json({
         error: true,
-        message:
-          "No entries available for query symbol for supplied date range",
+        message: "No entries available for query symbol for supplied date range",
       });
       return;
     }
